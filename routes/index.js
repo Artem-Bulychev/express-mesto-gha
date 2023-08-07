@@ -1,13 +1,35 @@
-const cardRoutes = require('./cards');
-const { ERROR_NOT_FOUND } = require('../utils/status');
+const router = require('express').Router();
+const { createUser, login } = require('../controllers/users');
+const { celebrate, Joi } = require('celebrate');
+const auth = require('../middlewares/auth');
+const routesCard = require('./cards');
+const routesUser = require('./users');
+const NotFoundError = require('../errors/ErrorNotFound');
 
-const router = express.Router();
-const userRoutes = require('./users');
+router.post('/signup', celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+    avatar: Joi.string().pattern((/^(https?:\/\/)?([\w-]{1,32}\.[\w-]{1,32})[^\s@]*$/)),
+    email: Joi.string().required(),
+    password: Joi.string().required().min(8),
+  }),
+}), createUser);
 
-router.use(cardRoutes);
+router.post('/signin', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required(),
+    password: Joi.string().required().min(8),
+  }),
+}), login);
 
-router.use(userRoutes);
+router.use(auth);
 
-router.use('*', (req, res) => res.status(ERROR_NOT_FOUND).send({ message: 'Страница не найдена' }));
+router.use(routesUser);
+router.use(routesCard);
+
+router.use('*', () => {
+  throw new NotFoundError('Страница не найдена');
+});
 
 module.exports = router;

@@ -19,6 +19,10 @@ const userSchema = new mongoose.Schema({
   avatar: {
     type: String,
     required: [true, 'Поле "avatar" должно быть заполнено'],
+    validate: {
+      validator: (a) => validator.isURL(a),
+      message: 'Некорректный URL',
+    },
   },
   email: {
     type: String,
@@ -37,7 +41,7 @@ const userSchema = new mongoose.Schema({
 }, { versionKey: false });
 
 userSchema.statics.findUserByCredentials = function (email, password) {
-  return this.findOne({ email })
+  return this.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
         return Promise.reject(new ErrorUnauthorized('Неправильные почта или пароль'));

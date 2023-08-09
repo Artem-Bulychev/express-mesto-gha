@@ -38,13 +38,7 @@ const deleteCardById = (req, res, next) => {
         throw new ErrorForbidden('Недостаточно прав для удаления карточки');
       }
       Card.deleteOne(card)
-        .then(() => res.status(200).send({ data: card }))
-        .catch((err) => {
-          if (err.name === 'ValidationError') {
-            next(new ErrorRequest('Некоректный запрос'));
-          }
-          return next(err);
-        });
+        .then(() => res.status(200).send({ data: card }));
     })
     .catch(next);
 };

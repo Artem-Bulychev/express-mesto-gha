@@ -28,8 +28,8 @@ router.use(auth);
 router.use(routesUser);
 router.use(routesCard);
 
-router.use('*', () => {
-  throw new NotFoundError('Страница не найдена');
-});
+router.use('*', () =>
+  // eslint-disable-next-line no-undef, implicit-arrow-linebreak
+  next(new NotFoundError('Страница не найдена')));
 
 module.exports = router;
